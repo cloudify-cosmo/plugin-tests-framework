@@ -56,6 +56,7 @@ def environment(request, tester_conf):
     test_env = TestEnvironment()
 
     test_env.start(
+        tester_conf=tester_conf,
         logging_level=tester_conf['logging']['level'],
         log_to_console=tester_conf['logging']['to_console'],
         workdir_prefix=workdir_prefix,

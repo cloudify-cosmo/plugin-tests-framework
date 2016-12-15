@@ -27,6 +27,7 @@ class TestEnvironment(object):
     _env_cache = {}
 
     def start(self,
+              tester_conf,
               logging_level='debug',
               log_to_console=False,
               workdir_prefix='cloudify_tester'):
@@ -39,8 +40,10 @@ class TestEnvironment(object):
             self.logger.console_logging_set_level(logging_level)
         else:
             self.logger.console_logging_disable()
+        self.tester_conf = tester_conf
 
-        self.executor = Executor(workdir=self.workdir, logger=self.logger)
+        self.executor = Executor(workdir=self.workdir, logger=self.logger,
+                                 tester_conf=tester_conf)
         self.cfy = CfyHelper(workdir=self.workdir, executor=self.executor)
         self.git = GitHelper(workdir=self.workdir, executor=self.executor)
         self.pip = PipHelper(workdir=self.workdir, executor=self.executor)

@@ -10,10 +10,23 @@ class RetriesExceededError(Exception):
 class Executor(object):
     _env_cache = {}
 
-    def __init__(self, workdir, logger, generate_env_files=True):
+    def __init__(self, workdir, logger, tester_conf, generate_env_files=True):
         self.workdir = workdir
         self.logger = logger
+        self.tester_conf = tester_conf
         self.generate_env_files = generate_env_files
+
+    def _possibly_substitute_conf_value(self, original_value):
+        if original_value.startswith('{{') and original_value.endswith('}}'):
+            conf_location = original_value.strip('{}')
+            conf_location = conf_location.split('.')
+            current_location = self.tester_conf
+            for nested in conf_location:
+                current_location = current_location[nested]
+            value = current_location
+        else:
+            value = original_value
+        return value
 
     def __call__(self, command, path_prepends=None, env_var_overrides=None,
                  retries=3, retry_delay=3, cwd=None, fake=False,
@@ -24,6 +37,12 @@ class Executor(object):
             path_prepends = []
         if cwd is None:
             cwd = self.workdir
+
+        # Subsistute conf values
+        command = [
+            self._possibly_substitute_conf_value(element)
+            for element in command
+        ]
 
         # Get current env to modify
         os_env = os.environ.copy()
