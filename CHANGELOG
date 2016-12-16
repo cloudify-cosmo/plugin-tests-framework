@@ -1,3 +1,4 @@
+1.1.2: Add support for magic.repo_root in templates.
 1.1.1: Add support for conf entries in executor.
 1.1.0: Add support for retrieving files.
 1.0.0: Initial version.

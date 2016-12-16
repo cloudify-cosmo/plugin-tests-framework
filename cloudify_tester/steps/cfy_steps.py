@@ -2,7 +2,6 @@ from cloudify_tester.utils import get_repo_root
 from pytest_bdd import given, when, parsers
 from jinja2 import Template
 import os
-import subprocess
 import yaml
 
 
@@ -84,6 +83,7 @@ def blueprint_or_inputs(blueprint_or_inputs,
 
     template_conf = dict(tester_conf.items())
     template_conf['magic']['workdir'] = environment.workdir
+    template_conf['magic']['repo_root'] = get_repo_root()
 
     result = template.render(template_conf)
 
