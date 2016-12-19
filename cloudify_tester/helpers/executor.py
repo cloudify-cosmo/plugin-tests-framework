@@ -21,8 +21,7 @@ class Executor(object):
     def _possibly_substitute_conf_value(self, original_value):
         if original_value.startswith('{{') and original_value.endswith('}}'):
             conf_location = original_value.strip('{}')
-            conf_location = conf_location.split('.')
-            value = get_config_entry(value, tester_conf)
+            value = get_config_entry(conf_location, self.tester_conf)
         else:
             value = original_value
         return value

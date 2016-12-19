@@ -1,3 +1,4 @@
+1.2.1: Fix conf entries in executor.
 1.2.0: Add support for skipping test based on boolean in config.
 1.1.2: Add support for magic.repo_root in templates. (badly versioned)
 1.1.1: Add support for conf entries in executor.
