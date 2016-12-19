@@ -1,2 +1,3 @@
-from cloudify_tester.steps.cfy_steps import *
-from cloudify_tester.steps.curl_steps import *
+from cloudify_tester.steps.cfy import *  # noqa
+from cloudify_tester.steps.curl import *  # noqa
+from cloudify_tester.steps.general import *  # noqa

@@ -140,20 +140,3 @@ def local_uninstall(environment):
         args=['uninstall'],
     )
     environment.cfy.local.execute('uninstall')
-
-
-# TODO: This isn't a cfy step, move it
-@given("no tests have failed in this feature")
-def feature_has_not_failed_yet(request):
-    """
-        Stop running this scenario if any other scenarios have failed in this
-        feature.
-    """
-    # TODO: This is used in two places, factor it out
-    module_tests = [item for item in request.session.items
-                    if item.parent == request.node.parent]
-
-    for test in module_tests:
-        if hasattr(test, '__scenario_report__'):
-            for item in test.__scenario_report__.step_reports:
-                assert not item.failed

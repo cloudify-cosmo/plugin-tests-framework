@@ -1,3 +1,5 @@
+from cloudify_tester.utils import get_config_entry
+
 import os
 import subprocess
 import time
@@ -20,10 +22,7 @@ class Executor(object):
         if original_value.startswith('{{') and original_value.endswith('}}'):
             conf_location = original_value.strip('{}')
             conf_location = conf_location.split('.')
-            current_location = self.tester_conf
-            for nested in conf_location:
-                current_location = current_location[nested]
-            value = current_location
+            value = get_config_entry(value, tester_conf)
         else:
             value = original_value
         return value
