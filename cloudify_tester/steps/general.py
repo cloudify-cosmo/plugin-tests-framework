@@ -1,8 +1,6 @@
-from cloudify_tester.utils import get_repo_root, get_config_entry
-from pytest_bdd import given, when, parsers
+from cloudify_tester.utils import get_config_entry
+from pytest_bdd import given, parsers
 import pytest
-from jinja2 import Template
-import os
 import json
 
 

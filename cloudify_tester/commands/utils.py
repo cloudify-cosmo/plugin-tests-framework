@@ -10,6 +10,7 @@ import sys
 
 _logger = None
 
+
 def get_logger():
     # TODO: docstring
     global _logger

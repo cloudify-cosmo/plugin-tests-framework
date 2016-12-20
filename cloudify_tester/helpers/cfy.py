@@ -47,9 +47,12 @@ class CfyHelper(CfyHelperBase):
 
     def deploy_yaml(self, source_dict, file_name):
         yaml_dict = yaml.dump(source_dict, default_flow_style=False)
+        self.deploy_file(yaml_dict, file_name)
+
+    def deploy_file(self, data, file_name):
         with open(os.path.join(self.workdir, file_name),
                   'w') as output_handle:
-            output_handle.write(yaml_dict)
+            output_handle.write(data)
 
     def init(self, fake_run=False):
         return self._exec(['init'], fake_run=fake_run)
@@ -141,6 +144,7 @@ class _CfyPluginsHelper(CfyHelperBase):
     def upload(self, plugin_path, fake_run=False):
         command = ['plugins', 'upload', '-p', plugin_path]
         return self._exec(command, fake_run=fake_run)
+
 
 class _CfyExecutionsHelper(CfyHelperBase):
     def start(self, deployment_id, workflow, timeout=900, fake_run=False):

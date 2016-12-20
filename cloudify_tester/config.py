@@ -1,7 +1,6 @@
 from utils import get_repo_root
 
 import pkg_resources
-import subprocess
 import warnings
 import yaml
 

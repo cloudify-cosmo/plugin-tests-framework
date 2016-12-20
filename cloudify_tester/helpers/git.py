@@ -35,6 +35,7 @@ class GitHelper(object):
 
     def get_current_repo_root(self):
         """
-            From the current working directory, find the root of the repo we're in.
+            From the current working directory, find the root of the repo
+            we're in.
         """
         return self._executor(['rev-parse', '--show-toplevel'])

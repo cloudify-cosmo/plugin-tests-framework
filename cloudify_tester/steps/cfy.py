@@ -1,7 +1,5 @@
-from cloudify_tester.utils import get_repo_root
+from cloudify_tester.utils import get_repo_root, get_rendered_template
 from pytest_bdd import given, when, parsers
-from jinja2 import Template
-import os
 import yaml
 
 
@@ -19,15 +17,16 @@ def install_cli(environment, tester_conf):
 
 
 @when(parsers.parse(
-    "I have {blueprint_or_inputs} {name} from template {template_name}"
+    "I have {file_type} {name} from template {template_name}"
 ))
-def blueprint_or_inputs(blueprint_or_inputs,
+def blueprint_or_inputs(file_type,
                         name,
                         template_name,
                         environment,
                         tester_conf):
     """
-        Parse a blueprint or inputs template with values from the config.
+        Parse a blueprint, inputs, or script template with values from the
+        config.
         The template opened will be:
         (root of git repo)/system_tests/templates/<template_name>
         The parsed template will be placed in the test's workdir in a file
@@ -36,60 +35,28 @@ def blueprint_or_inputs(blueprint_or_inputs,
     valid = [
         'blueprint',
         'inputs',
+        'script',
     ]
 
-    if blueprint_or_inputs not in valid:
+    if file_type not in valid:
         raise ValueError(
-            '{value} is invalid for creating blueprint or inputs. '
+            '{value} is invalid for creating blueprint, script, or inputs. '
             'Valid options are {options}'.format(
-                value=blueprint_or_inputs,
+                value=file_type,
                 options=', '.join(valid),
             )
         )
 
     destination = name
 
-    repo_root = get_repo_root()
+    result = get_rendered_template(template_name, tester_conf, environment)
 
-    # Find templates
-    # TODO: This should be a utils class
-    templates = {}
-    templates_path = os.path.join(
-        repo_root,
-        'system_tests',
-        'templates',
-    )
+    if file_type == 'script':
+        environment.cfy.deploy_file(result, destination)
+    else:
+        result = yaml.load(result)
 
-    if os.path.isdir(templates_path):
-        # Get a list of files in the template path root and any subdirs
-        template_paths = [(path[0][len(templates_path):].lstrip('/'), path[2])
-                          for path in os.walk(templates_path)]
-
-        for template_location, template_names in template_paths:
-            for template in template_names:
-                key = '{loc}/{name}'.format(
-                    loc=template_location,
-                    name=template,
-                )
-                templates[key] = os.path.join(
-                    templates_path,
-                    template_location,
-                    template,
-                )
-
-    template_path = templates[template_name]
-    with open(template_path) as template_handle:
-        template = Template(template_handle.read())
-
-    template_conf = dict(tester_conf.items())
-    template_conf['magic']['workdir'] = environment.workdir
-    template_conf['magic']['repo_root'] = get_repo_root()
-
-    result = template.render(template_conf)
-
-    result = yaml.load(result)
-
-    environment.cfy.deploy_yaml(result, destination)
+        environment.cfy.deploy_yaml(result, destination)
 
 
 @given("I have installed the plugin locally")
@@ -106,7 +73,7 @@ def local_init_blueprint(blueprint, inputs, environment):
         blueprint and input files, which are expected to be located in the
         test environment.
         These files should have been created with the 'I have
-        {blueprint_or_inputs}...' steps.
+        {file_type}...' steps.
     """
     # TODO: This should use get_<x>_location classs from utils
     environment.cfy.local.init(
