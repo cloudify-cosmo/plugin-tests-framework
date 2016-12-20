@@ -1,3 +1,4 @@
+import json
 import os
 
 import yaml
@@ -97,6 +98,11 @@ class _CfyLocalHelper(CfyHelperBase):
                            '--task-retry-interval', interval,
                            '--task-retries', retries],
                           fake_run=fake_run)
+
+    def outputs(self, fake_run=False):
+        result = self._exec(['local', 'outputs'], fake_run=fake_run)
+        result['cfy_outputs'] = json.loads(str(''.join(result['stdout'])))
+        return result
 
 
 class _CfyBlueprintsHelper(CfyHelperBase):

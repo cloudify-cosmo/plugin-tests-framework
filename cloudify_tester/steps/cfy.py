@@ -1,5 +1,5 @@
 from cloudify_tester.utils import get_repo_root, get_rendered_template
-from pytest_bdd import given, when, parsers
+from pytest_bdd import given, when, then, parsers
 import yaml
 
 
@@ -107,3 +107,12 @@ def local_uninstall(environment):
         args=['uninstall'],
     )
     environment.cfy.local.execute('uninstall')
+
+
+@then(parsers.parse("I confirm that local output {output} is {value}"))
+def local_output_check(environment, output, value):
+    outputs = environment.cfy.local.outputs()['cfy_outputs']
+    # Make sure the comparisons are all string based, a different step should
+    # be created that forces the parsed type to be of the correct type for
+    # other types.
+    assert str(outputs[output]) == value
