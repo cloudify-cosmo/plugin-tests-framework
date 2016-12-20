@@ -50,7 +50,10 @@ class CfyHelper(CfyHelperBase):
         self.deploy_file(yaml_dict, file_name)
 
     def deploy_file(self, data, file_name):
-        with open(os.path.join(self.workdir, file_name),
+        dir_name, file_name = os.path.split(file_name)
+        if dir_name != '':
+            os.makedirs(os.path.join(self.workdir, dir_name))
+        with open(os.path.join(self.workdir, dir_name, file_name),
                   'w') as output_handle:
             output_handle.write(data)
 

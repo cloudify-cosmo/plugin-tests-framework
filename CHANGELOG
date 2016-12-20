@@ -1,3 +1,5 @@
+1.4.0: Add ability to pip install from a path.
+1.3.1: Allow deploying scripts/etc to subdirs.
 1.3.0: Allow scripts to be deployed from templates.
 1.2.1: Fix conf entries in executor.
 1.2.0: Add support for skipping test based on boolean in config.
