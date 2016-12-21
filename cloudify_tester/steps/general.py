@@ -1,7 +1,8 @@
 from cloudify_tester.utils import get_config_entry
-from pytest_bdd import given, parsers
+from pytest_bdd import given, then, parsers
 import pytest
 import json
+import time
 
 
 @given("no tests have failed in this feature")
@@ -33,3 +34,11 @@ def skip_test(config_entry, truth, tester_conf):
     if entry == truth:
         pytest.skip('{} was {}, so this test is skipped.'.format(config_entry,
                                                                  truth))
+
+
+@then(parsers.cfparse("I wait {count:d} seconds"))
+def wait(count):
+    """
+        Wait for {count} seconds.
+    """
+    time.sleep(count)
