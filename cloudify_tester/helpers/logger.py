@@ -37,12 +37,19 @@ class TestLogger(object):
         self._logger.addHandler(self._filehandler)
         self.file_logging_enable()
 
-        # Create console handler
-        self._consolehandler = logging.StreamHandler()
-        self._consolehandler_level = console_level
-        self._consolehandler.setFormatter(formatter)
-        self.console_logging_enable()
-        self._logger.addHandler(self._consolehandler)
+        # Create console handler if needed
+        needs_console_handler = True
+        for handler in self._logger.handlers:
+            if not isinstance(handler, logging.FileHandler):
+                needs_console_handler = False
+                self._consolehandler = handler
+                break
+        if needs_console_handler:
+            self._consolehandler = logging.StreamHandler()
+            self._consolehandler_level = console_level
+            self._consolehandler.setFormatter(formatter)
+            self.console_logging_enable()
+            self._logger.addHandler(self._consolehandler)
 
     def file_logging_enable(self):
         self._filehandler.setLevel(self._filehandler_level)

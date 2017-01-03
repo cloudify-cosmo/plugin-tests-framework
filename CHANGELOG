@@ -1,3 +1,4 @@
+1.6.1: Fix multiple logging output with console logging enabled.
 1.6.0: Add ability to wait a given amount of seconds.
 1.5.0: Add ability to check local outputs.
 1.4.0: Add ability to pip install from a path.
