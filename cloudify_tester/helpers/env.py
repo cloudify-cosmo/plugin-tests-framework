@@ -17,14 +17,8 @@ class TestEnvironment(object):
     cfy = None
     git = None
     pip = None
-    _cleanups = []
     manager_bootstrap_completed = False
     cli_installed = False
-    plugins = []
-    blueprints = []
-    deployments = []
-    deployments_outputs = {}
-    _env_cache = {}
 
     def start(self,
               tester_conf,
@@ -48,6 +42,13 @@ class TestEnvironment(object):
         self.git = GitHelper(workdir=self.workdir, executor=self.executor)
         self.pip = PipHelper(workdir=self.workdir, executor=self.executor)
         self.curl = CurlHelper(workdir=self.workdir, executor=self.executor)
+
+        self._cleanups = []
+        self.plugins = []
+        self.blueprints = []
+        self.deployments = []
+        self.deployments_outputs = {}
+        self._env_cache = {}
 
         self.executor(['virtualenv', '.'])
 
