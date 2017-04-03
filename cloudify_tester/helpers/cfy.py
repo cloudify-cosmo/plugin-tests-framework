@@ -53,7 +53,14 @@ class CfyHelper(CfyHelperBase):
     def deploy_file(self, data, file_name):
         dir_name, file_name = os.path.split(file_name)
         if dir_name != '':
-            os.makedirs(os.path.join(self.workdir, dir_name))
+            try:
+                os.makedirs(os.path.join(self.workdir, dir_name))
+            except OSError as err:
+                if hasattr(err, 'errno') and err.errno == 17:
+                    # Path already exists
+                    pass
+                else:
+                    raise
         with open(os.path.join(self.workdir, dir_name, file_name),
                   'w') as output_handle:
             output_handle.write(data)

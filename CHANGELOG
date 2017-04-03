@@ -1,3 +1,4 @@
+1.6.3: Handle already existing subdirs when deploying files.
 1.6.2: Python mutable stuff fix.
 1.6.1: Fix multiple logging output with console logging enabled.
 1.6.0: Add ability to wait a given amount of seconds.
