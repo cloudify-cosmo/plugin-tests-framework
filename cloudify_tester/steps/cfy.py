@@ -92,7 +92,41 @@ def local_install(environment):
         environment.cfy.local.execute,
         args=['uninstall'],
     )
-    environment.cfy.local.execute('install')
+    result = environment.cfy.local.execute('install')
+    assert result['returncode'] == 0, (
+        'Install workflow failed!'
+    )
+
+
+@when("I fail the local install workflow")
+def fail_local_install(environment):
+    """
+        Run the test environment's cfy local execute -w install,
+        and complain if it succeeds.
+        Otherwise, the stderr and stdout will be available for checking with
+        the "install workflow errors include <string>" step.
+    """
+    environment.add_cleanup(
+        environment.cfy.local.execute,
+        args=['uninstall'],
+    )
+    result = environment.cfy.local.execute('install')
+    assert result['returncode'] != 0, (
+        'Install workflow succeeded, but should have failed!'
+    )
+
+    environment.install_result = result
+
+
+@then(parsers.parse("install workflow errors include {error}"))
+def string_in_install_errors(error, environment):
+    """
+        Check that a given string appears in the install workflow errors.
+    """
+    # Yes, this is checking stdout, because that's where cfy puts the error
+    assert error in ''.join(environment.install_result['stdout']), (
+        'Expected error not found in install workflow output!'
+    )
 
 
 @when("I run the local uninstall workflow")
@@ -106,7 +140,10 @@ def local_uninstall(environment):
         environment.cfy.local.execute,
         args=['uninstall'],
     )
-    environment.cfy.local.execute('uninstall')
+    result = environment.cfy.local.execute('uninstall')
+    assert result['returncode'] == 0, (
+        'Uninstall workflow failed!'
+    )
 
 
 @then(parsers.parse("I confirm that local output {output} is {value}"))
