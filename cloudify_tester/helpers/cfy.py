@@ -100,6 +100,20 @@ class _CfyLocalHelper(CfyHelperBase):
             fake_run=fake_run,
         )
 
+    def execute_operation(self, operation, node, fake_run=False,
+                          retries=50, interval=3):
+        return self._exec(
+            [
+                'local', 'execute', '--workflow', 'execute_operation',
+                '--parameters', json.dumps(
+                    {'operation': operation, 'node_ids': node}
+                ),
+                '--task-retry-interval', interval,
+                '--task-retries', retries,
+            ],
+            fake_run=fake_run,
+        )
+
     def execute(self, workflow, fake_run=False, retries=50, interval=3):
         return self._exec(['local', 'execute', '--workflow', workflow,
                            '--task-retry-interval', interval,
@@ -109,6 +123,11 @@ class _CfyLocalHelper(CfyHelperBase):
     def outputs(self, fake_run=False):
         result = self._exec(['local', 'outputs'], fake_run=fake_run)
         result['cfy_outputs'] = json.loads(str(''.join(result['stdout'])))
+        return result
+
+    def instances(self, fake_run=False):
+        result = self._exec(['local', 'instances'], fake_run=fake_run)
+        result['cfy_instances'] = json.loads(str(''.join(result['stdout'])))
         return result
 
 

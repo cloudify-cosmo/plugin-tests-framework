@@ -116,3 +116,11 @@ def local_output_check(environment, output, value):
     # be created that forces the parsed type to be of the correct type for
     # other types.
     assert str(outputs[output]) == value
+
+
+@when(parsers.parse("I run the {operation} operation on local node {node}"))
+def local_operation(operation, node, environment):
+    environment.cfy.local.execute_operation(
+        operation=operation,
+        node=node,
+    )
