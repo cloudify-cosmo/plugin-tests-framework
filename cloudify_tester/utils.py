@@ -23,8 +23,13 @@ def get_config_entry(path, config):
 
 
 def get_rendered_template(template_name, tester_conf, environment):
-    template = get_template(template_name)
+    template_data = get_template_data(template_name)
 
+    return render_template(template_data, tester_conf, environment)
+
+
+def render_template(template_data, tester_conf, environment):
+    template = Template(template_data)
     template_conf = dict(tester_conf.items())
     template_conf['magic']['workdir'] = environment.workdir
     template_conf['magic']['repo_root'] = get_repo_root()
@@ -32,12 +37,12 @@ def get_rendered_template(template_name, tester_conf, environment):
     return template.render(template_conf)
 
 
-def get_template(template_name):
+def get_template_data(template_name):
     templates = get_templates()
 
     template_path = templates[template_name]
     with open(template_path) as template_handle:
-        template = Template(template_handle.read())
+        template = template_handle.read()
 
     return template
 

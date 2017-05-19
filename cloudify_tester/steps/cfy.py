@@ -1,4 +1,8 @@
-from cloudify_tester.utils import get_repo_root, get_rendered_template
+from cloudify_tester.utils import (
+    get_repo_root,
+    get_rendered_template,
+    render_template,
+)
 from pytest_bdd import given, when, then, parsers
 import yaml
 
@@ -118,14 +122,50 @@ def fail_local_install(environment):
     environment.install_result = result
 
 
-@then(parsers.parse("install workflow errors include {error}"))
-def string_in_install_errors(error, environment):
+@then(parsers.parse(
+    "case {sensitive_or_insensitive} install workflow errors have config "
+    "value {value}"
+))
+def config_value_in_install_output(sensitive_or_insensitive, value,
+                                   tester_conf, environment):
     """
-        Check that a given string appears in the install workflow errors.
+        Check that a given config value specified appears in the install
+        workflow output.
+
+        e.g. if the config contained cloudify.types_location which was set to
+        https://www.example.com/example_types.yaml
+        then calling this with cloudify.types_location would try to confirm
+        that the URL specified appeared in the install workflow output.
     """
+    case_sensitive = sensitive_or_insensitive == 'sensitive'
+    value = '{{' + value + '}}'
+    value = render_template(value, tester_conf, environment)
+    check_value_in_install_output(value, environment, case_sensitive)
+
+
+@then(parsers.parse(
+    "case {sensitive_or_insensitive} install workflow errors include {value}"
+))
+def string_in_install_output(sensitive_or_insensitive, value, environment):
+    """
+        Check that a given string appears in the install workflow output.
+
+        If it starts with {{, the error string will be interpreted in the same
+        way as templates to allow for checking that values specified in the
+        config are present.
+    """
+    case_sensitive = sensitive_or_insensitive == 'sensitive'
+    check_value_in_install_output(value, environment, case_sensitive)
+
+
+def check_value_in_install_output(value, environment, case_sensitive):
     # Yes, this is checking stdout, because that's where cfy puts the error
-    assert error in ''.join(environment.install_result['stdout']), (
-        'Expected error not found in install workflow output!'
+    output = ''.join(environment.install_result['stdout'])
+    if not case_sensitive:
+        value = value.lower()
+        output = output.lower()
+    assert value in output, (
+        'Expected value not found in install workflow output!'
     )
 
 

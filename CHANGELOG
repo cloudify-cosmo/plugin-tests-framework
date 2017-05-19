@@ -1,3 +1,4 @@
+1.9.0: Add ability to check install workflow output contains a confing entry value, and case sensitivity option.
 1.8.0: Add ability to check local install workflow fails with expected errors.
 1.7.0: Add local instances and local operation execution.
 1.6.3: Handle already existing subdirs when deploying files.
