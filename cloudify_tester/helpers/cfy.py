@@ -100,14 +100,15 @@ class _CfyLocalHelper(CfyHelperBase):
             fake_run=fake_run,
         )
 
-    def execute_operation(self, operation, node, fake_run=False,
-                          retries=50, interval=3):
+    def execute_operation(self, operation, node, operation_kwargs=None,
+                          fake_run=False, retries=50, interval=3):
+        params = {'operation': operation, 'node_ids': node}
+        if operation_kwargs:
+            params['operation_kwargs'] = operation_kwargs
         return self._exec(
             [
                 'local', 'execute', '--workflow', 'execute_operation',
-                '--parameters', json.dumps(
-                    {'operation': operation, 'node_ids': node}
-                ),
+                '--parameters', json.dumps(params),
                 '--task-retry-interval', interval,
                 '--task-retries', retries,
             ],
