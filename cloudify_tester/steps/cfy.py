@@ -207,7 +207,7 @@ def local_operation_with_args(operation, kwargs, node, environment):
 
 
 @when(parsers.parse("I fail the {operation} operation on local node {node}"))
-def local_operation(operation, node, environment):
+def fail_local_operation(operation, node, environment):
     run_operation(operation, node, environment, succeed=False)
 
 
@@ -215,7 +215,7 @@ def local_operation(operation, node, environment):
     "I fail the {operation} operation with kwargs on local node {node}, "
     "json args: {kwargs}"
 ))
-def local_operation_with_args(operation, kwargs, node, environment):
+def fail_local_operation_with_args(operation, kwargs, node, environment):
     kwargs = json.loads(kwargs)
     run_operation(operation, node, environment, args=kwargs, succeed=False)
 
