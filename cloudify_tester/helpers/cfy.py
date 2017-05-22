@@ -1,5 +1,6 @@
 import json
 import os
+from shutil import copy2
 
 import yaml
 
@@ -10,8 +11,8 @@ class CfyHelperBase(object):
         self._executor = executor
 
     def _exec(self, command, install_plugins=False,
-              retries=0, retry_delay=3, fake_run=False):
-        prepared_command = ['bin/cfy']
+              retries=0, retry_delay=3, cwd=None, fake_run=False):
+        prepared_command = [os.path.join(self.workdir, 'bin', 'cfy')]
         command = [str(component) for component in command]
         prepared_command.extend(command)
         if install_plugins:
@@ -21,6 +22,7 @@ class CfyHelperBase(object):
             retries=retries,
             retry_delay=retry_delay,
             path_prepends=['bin'],
+            cwd=cwd,
             fake=fake_run,
         )
 
@@ -88,8 +90,22 @@ class CfyHelper(CfyHelperBase):
 
 
 class _CfyLocalHelper(CfyHelperBase):
+    def __init__(self, workdir, *args, **kwargs):
+        super(_CfyLocalHelper, self).__init__(workdir, *args, **kwargs)
+        self._local_counter = 0
+
     def init(self, blueprint_path, inputs_path, install_plugins=False,
              fake_run=False):
+        self._local_counter += 1
+        self.local_workdir = os.path.join(
+            self.workdir,
+            'cfy_local_inits',
+            str(self._local_counter),
+        )
+        os.makedirs(self.local_workdir)
+        for f in blueprint_path, inputs_path:
+            # Copy blueprints to the local workdir
+            copy2(os.path.join(self.workdir, f), self.local_workdir)
         return self._exec(
             [
                 'local', 'init',
@@ -97,6 +113,7 @@ class _CfyLocalHelper(CfyHelperBase):
                 '--inputs', inputs_path,
             ],
             install_plugins=install_plugins,
+            cwd=self.local_workdir,
             fake_run=fake_run,
         )
 
@@ -115,11 +132,19 @@ class _CfyLocalHelper(CfyHelperBase):
             fake_run=fake_run,
         )
 
-    def execute(self, workflow, fake_run=False, retries=50, interval=3):
-        return self._exec(['local', 'execute', '--workflow', workflow,
-                           '--task-retry-interval', interval,
-                           '--task-retries', retries],
-                          fake_run=fake_run)
+    def execute(
+            self, workflow, fake_run=False, retries=50, interval=3, cwd=None):
+        if not cwd:
+            # Allows us to store the current workdir and pass it in during
+            # cleanup
+            cwd = self.local_workdir
+        return self._exec(
+                [
+                    'local', 'execute', '--workflow', workflow,
+                    '--task-retry-interval', interval,
+                    '--task-retries', retries],
+                cwd=cwd,
+                fake_run=fake_run)
 
     def outputs(self, fake_run=False):
         result = self._exec(['local', 'outputs'], fake_run=fake_run)

@@ -96,6 +96,7 @@ def local_install(environment):
     environment.add_cleanup(
         environment.cfy.local.execute,
         args=['uninstall'],
+        kwargs={'cwd': environment.cfy.local.local_workdir},
     )
     result = environment.cfy.local.execute('install')
     assert result['returncode'] == 0, (
@@ -173,13 +174,14 @@ def local_uninstall(environment):
         This will automatically remove the 'uninstall' cleanup from the
         environment.
     """
-    environment.remove_cleanup(
-        environment.cfy.local.execute,
-        args=['uninstall'],
-    )
     result = environment.cfy.local.execute('uninstall')
     assert result['returncode'] == 0, (
         'Uninstall workflow failed!'
+    )
+    environment.remove_cleanup(
+        environment.cfy.local.execute,
+        args=['uninstall'],
+        kwargs={'cwd': environment.cfy.local.local_workdir},
     )
 
 
