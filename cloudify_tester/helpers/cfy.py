@@ -134,12 +134,14 @@ class _CfySecretsHelper(CfyHelperBase):
 
 
 class _CfyProfilesHelper(CfyHelperBase):
-    def use(self, ip, username, password, fake_run=False):
+    def use(self, ip, username, password, tenant='default_tenant',
+            fake_run=False):
         return self._exec(
             [
                 'profiles', 'use',
                 '--manager-username', username,
                 '--manager-password', password,
+                '--manager-tenant', tenant,
                 ip,
             ],
             fake_run=fake_run,
