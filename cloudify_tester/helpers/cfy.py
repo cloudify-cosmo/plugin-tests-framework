@@ -49,6 +49,14 @@ class CfyHelper(CfyHelperBase):
             workdir=workdir,
             executor=executor,
         )
+        self.tenants = _CfyTenantsHelper(
+            workdir=workdir,
+            executor=executor,
+        )
+        self.users = _CfyUsersHelper(
+            workdir=workdir,
+            executor=executor,
+        )
 
     def deploy_yaml(self, source_dict, file_name):
         yaml_dict = yaml.dump(source_dict, default_flow_style=False)
@@ -111,14 +119,58 @@ class CfyHelper(CfyHelperBase):
 
 
 class _CfyProfilesHelper(CfyHelperBase):
-    def use(self, ip, username, password):
+    def use(self, ip, username, password, fake_run=False):
         return self._exec(
             [
                 'profiles', 'use',
                 '--manager-username', username,
                 '--manager-password', password,
                 ip,
-            ]
+            ],
+            fake_run=fake_run,
+        )
+
+    def set(self, tenant=None, username=None, password=None, fake_run=False):
+        command = ['profiles', 'set']
+        if tenant:
+            command.extend(['--manager-tenant', tenant])
+        if username:
+            command.extend(['--manager-username', username])
+        if password:
+            command.extend(['--manager-password', password])
+        return self._exec(command, fake_run=fake_run)
+
+
+class _CfyTenantsHelper(CfyHelperBase):
+    def create(self, tenant_name, fake_run=False):
+        return self._exec(
+            [
+                'tenants', 'create', tenant_name,
+            ],
+            fake_run=fake_run,
+        )
+
+    def add_user(self, tenant_name, username, fake_run=False):
+        return self._exec(
+            [
+                'tenants', 'add-user',
+                '--tenant-name', tenant_name,
+                username,
+            ],
+            fake_run=fake_run,
+        )
+
+
+class _CfyUsersHelper(CfyHelperBase):
+    def create(self, username, password, role='user', fake_run=False):
+        return self._exec(
+            [
+                'users', 'create',
+                '--security-role', role,
+                '--password', password,
+                username,
+            ],
+            fake_run=fake_run,
         )
 
 

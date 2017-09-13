@@ -53,6 +53,40 @@ def check_existing_healthy_manager(environment, tester_conf):
 
 
 @when(parsers.parse(
+    "I create tenant {tenant_name} with user with password {password}"
+))
+def create_tenant(tenant_name, password, environment):
+    """
+        Create a new tenant with the given name, and a user of the same name
+        with access to only that tenant.
+    """
+    environment.cfy.tenants.create(tenant=tenant_name)
+
+    environment.cfy.users.create(
+        role='user',
+        password=password,
+        username=tenant_name,
+    )
+
+    environment.cfy.tenants.add_user(tenant=tenant_name, username=tenant_name)
+
+
+@when(parsers.parse(
+    "I switch to tenant {tenant_name} using user using password {password}"
+))
+def switch_tenant(tenant_name, password, environment):
+    """
+        Switch to a named tenant using the user of the same name, and the
+        specified password.
+    """
+    environment.cfy.profiles.set(
+        tenant=tenant_name,
+        username=tenant_name,
+        password=password,
+    )
+
+
+@when(parsers.parse(
     "I have {file_type} {name} from template {template_name}"
 ))
 def blueprint_or_inputs(file_type,
