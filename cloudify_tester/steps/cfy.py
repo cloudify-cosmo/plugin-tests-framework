@@ -68,7 +68,8 @@ def create_tenant(tenant_name, password, environment):
         username=tenant_name,
     )
 
-    environment.cfy.tenants.add_user(tenant=tenant_name, username=tenant_name)
+    environment.cfy.tenants.add_user(tenant_name=tenant_name,
+                                     username=tenant_name)
 
 
 @when(parsers.parse(
