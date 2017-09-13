@@ -17,7 +17,7 @@ from setuptools import setup
 
 setup(
     name='plugin-tests-framework',
-    version='1.10.1',
+    version='1.10.2',
     author='Gigaspaces',
     author_email='cosmo-admin@gigaspaces.com',
     packages=['cloudify_tester', 'cloudify_tester.helpers',
@@ -27,7 +27,7 @@ setup(
     install_requires=[
         'PyYAML==3.10',
         'Jinja2==2.7.2',
-        'click==6.6',
+        'click==4.0',
     ],
     entry_points={
         'console_scripts': [
