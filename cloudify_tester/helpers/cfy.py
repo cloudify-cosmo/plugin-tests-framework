@@ -224,8 +224,8 @@ class _CfyBlueprintsHelper(CfyHelperBase):
                fake_run=False):
         command = [
             'blueprints', 'upload',
-            '--blueprint-path', blueprint_path,
             '--blueprint-id', blueprint_id,
+            blueprint_path,
         ]
         if validate:
             command.append('--validate')
@@ -235,7 +235,7 @@ class _CfyBlueprintsHelper(CfyHelperBase):
         return self._exec(
             [
                 'blueprints', 'delete',
-                '--blueprint-id', blueprint_id,
+                blueprint_id,
             ],
             fake_run=fake_run,
         )
@@ -247,7 +247,7 @@ class _CfyDeploymentsHelper(CfyHelperBase):
         command = [
             'deployments', 'create',
             '--blueprint-id', blueprint_id,
-            '--deployment-id', deployment_id,
+            deployment_id,
         ]
         if inputs_path is not None:
             command.extend(['--inputs', inputs_path])
@@ -256,7 +256,7 @@ class _CfyDeploymentsHelper(CfyHelperBase):
     def delete(self, deployment_id, ignore_live_nodes=False, fake_run=False):
         command = [
             'deployments', 'delete',
-            '--deployment-id', deployment_id,
+            deployment_id,
         ]
         if ignore_live_nodes:
             command.append('--ignore-live-nodes')
@@ -265,7 +265,7 @@ class _CfyDeploymentsHelper(CfyHelperBase):
 
 class _CfyPluginsHelper(CfyHelperBase):
     def upload(self, plugin_path, fake_run=False):
-        command = ['plugins', 'upload', '-p', plugin_path]
+        command = ['plugins', 'upload', plugin_path]
         return self._exec(command, fake_run=fake_run)
 
 
@@ -274,7 +274,7 @@ class _CfyExecutionsHelper(CfyHelperBase):
         command = [
             'executions', 'start',
             '--deployment-id', deployment_id,
-            '--workflow', workflow,
             '--timeout', timeout,
+            workflow,
         ]
         return self._exec(command, fake_run=fake_run)
