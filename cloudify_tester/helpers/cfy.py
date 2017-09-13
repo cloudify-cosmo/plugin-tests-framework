@@ -45,6 +45,10 @@ class CfyHelper(CfyHelperBase):
             workdir=workdir,
             executor=executor,
         )
+        self.profiles = _CfyProfilesHelper(
+            workdir=workdir,
+            executor=executor,
+        )
 
     def deploy_yaml(self, source_dict, file_name):
         yaml_dict = yaml.dump(source_dict, default_flow_style=False)
@@ -85,6 +89,37 @@ class CfyHelper(CfyHelperBase):
         if ignore_deployments:
             command.append('--ignore-deployments')
         return self._exec(command, fake_run=fake_run)
+
+    def status(self, fake_run=False):
+        command = ['status']
+        result = self._exec(command, fake_run=fake_run)
+
+        # Get the services in an easy to consume way
+        output_lines = [line for line in result['stdout'].splitlines()
+                        if '|' in line]
+        # Get rid of the header
+        output_lines = output_lines[1:]
+        services = {}
+        for line in output_lines:
+            line = line.split('|')
+            service_name = line[1].strip()
+            service_status = line[2].strip()
+            services[service_name] = service_status
+        result['services'] = services
+
+        return result
+
+
+class _CfyProfilesHelper(CfyHelperBase):
+    def use(self, ip, username, password):
+        return self._exec(
+            [
+                'profiles', 'use',
+                '--manager-username', username,
+                '--manager-password', password,
+                ip,
+            ]
+        )
 
 
 class _CfyLocalHelper(CfyHelperBase):

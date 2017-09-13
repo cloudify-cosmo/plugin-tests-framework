@@ -5,6 +5,7 @@ from cloudify_tester.utils import (
 )
 from pytest_bdd import given, when, then, parsers
 import json
+import os
 import yaml
 
 
@@ -19,6 +20,36 @@ def install_cli(environment, tester_conf):
     if not environment.cli_installed:
         environment.pip.install(tester_conf['cloudify']['install_cfy_from'])
         environment.cli_installed = True
+    # Make sure we use profiles in the test dir only
+    os.environ['CFY_WORKDIR'] = environment.workdir
+
+
+@given("I have a healthy manager")
+def check_existing_healthy_manager(environment, tester_conf):
+    """
+        Confirm that we have a pre-existing healthy manager.
+    """
+    assert tester_conf['cloudify']['existing_manager_ip'], (
+        'Config entry cloudify.existing_manager_ip is not set. '
+        'This must be set to use an existing manager.'
+    )
+
+    environment.cfy.profiles.use(
+        ip=tester_conf['cloudify']['existing_manager_ip'],
+        username=tester_conf['cloudify']['existing_manager_username'],
+        password=tester_conf['cloudify']['existing_manager_password'],
+    )
+
+    status = environment.cfy.status()
+    assert status['services'], (
+        'There appear to be no services, which is not healthy for a manager.'
+    )
+    assert all(
+        service_status == 'running'
+        for service_status in status['services'].values()
+    ), (
+        'Not all services are in a running state. Manager is unhealthy.'
+    )
 
 
 @when(parsers.parse(
