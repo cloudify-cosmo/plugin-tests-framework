@@ -286,7 +286,16 @@ class _CfyDeploymentsHelper(CfyHelperBase):
             ['deployment', 'outputs', deployment_id],
             fake_run=fake_run,
         )
-        result['cfy_outputs'] = json.loads(str(''.join(result['stdout'])))
+        # We're yaml loading the stdout except the first line because the
+        # first line tells us it is retrieving the result, and we can't turn
+        # that off...
+        yaml_lines = result['stdout'][1:]
+        # It's a dictionary, stop using a list of single element dictionaries
+        # (we strip off the first two characters of each line to deal with
+        # this, as the first line of each output is " -", and subsequent lines
+        # are indented by an extra two spaces as well)
+        yaml_lines = [line[2:] for line in yaml_lines]
+        result['cfy_outputs'] = yaml.load(str(''.join(yaml_lines)))
         return result
 
 
