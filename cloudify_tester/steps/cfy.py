@@ -142,6 +142,60 @@ def create_secret(secret_name, secret_value, environment):
     )
 
 
+@when(parsers.parse(
+    "I run the install workflow for deployment {deployment_id}"
+))
+def install(deployment_id, environment):
+    """
+        Run the install workflow on a given deployment on the manager.
+        This will automatically add an 'uninstall' cleanup to the environment.
+    """
+    environment.add_cleanup(
+        environment.cfy.executions.start,
+        kwargs={
+            'workflow': 'uninstall',
+            'deployment_id': deployment_id,
+        },
+    )
+    result = environment.cfy.executions.start(
+        workflow='install',
+        deployment_id=deployment_id,
+    )
+    assert result['returncode'] == 0, (
+        'Install workflow failed for deployment {deployment_id}!'.format(
+            deployment_id=deployment_id,
+        )
+    )
+
+
+@when(parsers.parse(
+    "I upload blueprint {blueprint_path} as {blueprint_id}"
+))
+def upload_blueprint(blueprint_path, blueprint_id, environment):
+    """
+        Upload a blueprint to a manager.
+    """
+    environment.cfy.blueprints.upload(
+        blueprint_path=blueprint_path,
+        blueprint_id=blueprint_id,
+    )
+
+
+@when(parsers.parse(
+    "I create deployment {deployment_id} from blueprint {blueprint_id}"
+))
+def create_deployment(deployment_id, blueprint_id, environment):
+    """
+        Create a deployment from a blueprint on a manager.
+        This will not validate plugins.
+    """
+    environment.cfy.deployments.create(
+        blueprint_id=blueprint_id,
+        deployment_id=deployment_id,
+        skip_plugins_validation=True,
+    )
+
+
 @given("I have installed the plugin locally")
 def install_plugin_in_env(environment):
     environment.pip.install(get_repo_root())

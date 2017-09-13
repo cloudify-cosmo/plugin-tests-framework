@@ -259,7 +259,7 @@ class _CfyBlueprintsHelper(CfyHelperBase):
 
 class _CfyDeploymentsHelper(CfyHelperBase):
     def create(self, blueprint_id, deployment_id, inputs_path=None,
-               fake_run=False):
+               skip_plugins_validation=False, fake_run=False):
         command = [
             'deployments', 'create',
             '--blueprint-id', blueprint_id,
@@ -267,6 +267,8 @@ class _CfyDeploymentsHelper(CfyHelperBase):
         ]
         if inputs_path is not None:
             command.extend(['--inputs', inputs_path])
+        if skip_plugins_validation:
+            command.append('--skip-plugins-validation')
         return self._exec(command, fake_run=fake_run)
 
     def delete(self, deployment_id, ignore_live_nodes=False, fake_run=False):
@@ -277,6 +279,14 @@ class _CfyDeploymentsHelper(CfyHelperBase):
         if ignore_live_nodes:
             command.append('--ignore-live-nodes')
         return self._exec(command, fake_run=fake_run)
+
+    def outputs(self, deployment_id, fake_run=False):
+        result = self._exec(
+            ['deployment', 'outputs', deployment_id],
+            fake_run=fake_run,
+        )
+        result['cfy_outputs'] = json.loads(str(''.join(result['stdout'])))
+        return result
 
 
 class _CfyPluginsHelper(CfyHelperBase):
