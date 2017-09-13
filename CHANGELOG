@@ -1,3 +1,4 @@
+1.14.1: Fix status command (lines are already split).
 1.14.0: Add tools for working with deployments on managers.
 1.13.0: Add ability to create secrets.
 1.12.1: Fix cfy commands for use with new CLI (except local commands).

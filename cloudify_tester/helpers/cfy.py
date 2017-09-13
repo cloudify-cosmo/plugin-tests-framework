@@ -107,8 +107,7 @@ class CfyHelper(CfyHelperBase):
         result = self._exec(command, fake_run=fake_run)
 
         # Get the services in an easy to consume way
-        output_lines = [line for line in result['stdout'].splitlines()
-                        if '|' in line]
+        output_lines = [line for line in result['stdout'] if '|' in line]
         # Get rid of the header
         output_lines = output_lines[1:]
         services = {}
