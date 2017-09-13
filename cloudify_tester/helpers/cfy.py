@@ -57,6 +57,10 @@ class CfyHelper(CfyHelperBase):
             workdir=workdir,
             executor=executor,
         )
+        self.secrets = _CfySecretsHelper(
+            workdir=workdir,
+            executor=executor,
+        )
 
     def deploy_yaml(self, source_dict, file_name):
         yaml_dict = yaml.dump(source_dict, default_flow_style=False)
@@ -116,6 +120,18 @@ class CfyHelper(CfyHelperBase):
         result['services'] = services
 
         return result
+
+
+class _CfySecretsHelper(CfyHelperBase):
+    def create(self, secret_name, secret_value, fake_run=False):
+        return self._exec(
+            [
+                'secrets', 'create',
+                '--secret-string', secret_value,
+                secret_name,
+            ],
+            fake_run=fake_run,
+        )
 
 
 class _CfyProfilesHelper(CfyHelperBase):

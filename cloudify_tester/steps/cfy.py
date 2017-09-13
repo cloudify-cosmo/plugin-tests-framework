@@ -129,6 +129,19 @@ def blueprint_or_inputs(file_type,
         environment.cfy.deploy_yaml(result, destination)
 
 
+@when(parsers.parse(
+    "I create secret {secret_name} with value {secret_value}"
+))
+def create_secret(secret_name, secret_value, environment):
+    """
+        Create a secret.
+    """
+    environment.cfy.secrets.create(
+        secret_name=secret_name,
+        secret_value=secret_value,
+    )
+
+
 @given("I have installed the plugin locally")
 def install_plugin_in_env(environment):
     environment.pip.install(get_repo_root())
