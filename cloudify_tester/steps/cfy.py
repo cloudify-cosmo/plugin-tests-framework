@@ -60,7 +60,7 @@ def create_tenant(tenant_name, password, environment):
         Create a new tenant with the given name, and a user of the same name
         with access to only that tenant.
     """
-    environment.cfy.tenants.create(tenant=tenant_name)
+    environment.cfy.tenants.create(tenant_name=tenant_name)
 
     environment.cfy.users.create(
         role='user',
