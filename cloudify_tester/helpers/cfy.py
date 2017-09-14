@@ -132,6 +132,15 @@ class _CfySecretsHelper(CfyHelperBase):
             fake_run=fake_run,
         )
 
+    def delete(self, secret_name, fake_run=False):
+        return self._exec(
+            [
+                'secrets', 'delete',
+                secret_name,
+            ],
+            fake_run=fake_run,
+        )
+
 
 class _CfyProfilesHelper(CfyHelperBase):
     def use(self, ip, username, password, tenant='default_tenant',
@@ -167,10 +176,28 @@ class _CfyTenantsHelper(CfyHelperBase):
             fake_run=fake_run,
         )
 
+    def delete(self, tenant_name, fake_run=False):
+        return self._exec(
+            [
+                'tenants', 'delete', tenant_name,
+            ],
+            fake_run=fake_run,
+        )
+
     def add_user(self, tenant_name, username, fake_run=False):
         return self._exec(
             [
                 'tenants', 'add-user',
+                '--tenant-name', tenant_name,
+                username,
+            ],
+            fake_run=fake_run,
+        )
+
+    def remove_user(self, tenant_name, username, fake_run=False):
+        return self._exec(
+            [
+                'tenants', 'remove-user',
                 '--tenant-name', tenant_name,
                 username,
             ],
@@ -185,6 +212,15 @@ class _CfyUsersHelper(CfyHelperBase):
                 'users', 'create',
                 '--security-role', role,
                 '--password', password,
+                username,
+            ],
+            fake_run=fake_run,
+        )
+
+    def delete(self, username, fake_run=False):
+        return self._exec(
+            [
+                'users', 'delete',
                 username,
             ],
             fake_run=fake_run,

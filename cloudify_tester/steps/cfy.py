@@ -59,15 +59,36 @@ def create_tenant(tenant_name, password, environment):
     """
         Create a new tenant with the given name, and a user of the same name
         with access to only that tenant.
+        This will automatically add a cleanup to the environment for the
+        created resources.
     """
+    environment.add_cleanup(
+        environment.cfy.tenants.delete,
+        kwargs={
+            'tenant_name': tenant_name,
+        },
+    )
     environment.cfy.tenants.create(tenant_name=tenant_name)
 
+    environment.add_cleanup(
+        environment.cfy.users.delete,
+        kwargs={
+            'username': tenant_name,
+        },
+    )
     environment.cfy.users.create(
         role='user',
         password=password,
         username=tenant_name,
     )
 
+    environment.add_cleanup(
+        environment.cfy.tenants.remove_user,
+        kwargs={
+            'username': tenant_name,
+            'tenant_name': tenant_name,
+        },
+    )
     environment.cfy.tenants.add_user(tenant_name=tenant_name,
                                      username=tenant_name)
 
@@ -75,11 +96,35 @@ def create_tenant(tenant_name, password, environment):
 @when(parsers.parse(
     "I switch to tenant {tenant_name} using user using password {password}"
 ))
-def switch_tenant(tenant_name, password, environment):
+def switch_tenant(tenant_name, password, environment, tester_conf):
     """
         Switch to a named tenant using the user of the same name, and the
         specified password.
+        This will automatically switch back to the previous user during
+        cleanup.
     """
+    if hasattr(environment.cfy, '_current_user'):
+        environment.add_cleanup(
+            environment.cfy.profiles.set,
+            kwargs=environment.cfy._current_user,
+        )
+    else:
+        creds_conf = tester_conf['cloudify']
+        environment.add_cleanup(
+            environment.cfy.profiles.set,
+            kwargs={
+                'tenant': 'default_tenant',
+                'username': creds_conf['existing_manager_username'],
+                'password': creds_conf['existing_manager_password'],
+            },
+        )
+        
+    environment.cfy._current_user = {
+        'tenant': tenant_name,
+        'username': tenant_name,
+        'password': password,
+    }
+
     environment.cfy.profiles.set(
         tenant=tenant_name,
         username=tenant_name,
@@ -136,7 +181,14 @@ def blueprint_or_inputs(file_type,
 def create_secret(secret_name, secret_value, environment):
     """
         Create a secret.
+        This will automatically add a 'delete' cleanup to the environment.
     """
+    environment.add_cleanup(
+        environment.cfy.secrets.delete,
+        kwargs={
+            'secret_name': secret_name,
+        },
+    )
     environment.cfy.secrets.create(
         secret_name=secret_name,
         secret_value=secret_value,
@@ -175,7 +227,14 @@ def install(deployment_id, environment):
 def upload_blueprint(blueprint_path, blueprint_id, environment):
     """
         Upload a blueprint to a manager.
+        This will automatically add a 'delete' cleanup to the environment.
     """
+    environment.add_cleanup(
+        environment.cfy.blueprints.delete,
+        kwargs={
+            'blueprint_id': blueprint_id,
+        },
+    )
     environment.cfy.blueprints.upload(
         blueprint_path=blueprint_path,
         blueprint_id=blueprint_id,
@@ -189,7 +248,14 @@ def create_deployment(deployment_id, blueprint_id, environment):
     """
         Create a deployment from a blueprint on a manager.
         This will not validate plugins.
+        This will automatically add a 'delete' cleanup to the environment.
     """
+    environment.add_cleanup(
+        environment.cfy.deployments.delete,
+        kwargs={
+            'deployment_id': deployment_id,
+        },
+    )
     environment.cfy.deployments.create(
         blueprint_id=blueprint_id,
         deployment_id=deployment_id,

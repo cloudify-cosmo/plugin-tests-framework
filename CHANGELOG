@@ -1,3 +1,4 @@
+1.15.0: Make manager functions clean up correctly.
 1.14.6: Make deployment outputs actually grab the outputs.
 1.14.5: Make executor fail correctly with no retries.
 1.14.4: More tenant name arg issues.
