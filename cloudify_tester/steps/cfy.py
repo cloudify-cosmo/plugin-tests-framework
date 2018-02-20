@@ -1,5 +1,4 @@
 from cloudify_tester.utils import (
-    get_repo_root,
     get_rendered_template,
     render_template,
 )
@@ -12,7 +11,7 @@ import yaml
 @when(parsers.parse(
     "I have installed cfy {version}"
 ))
-def install_cli(environment, tester_conf, version):
+def install_cli(version, environment, tester_conf):
     """
         Ensure that the cloudify package is installed, from a source defined
         in the test config.
@@ -33,9 +32,9 @@ def install_default_cli(environment, tester_conf):
         installed, using the version from cloudify.default_version
     """
     install_cli(
+        tester_conf['cloudify']['default_version'],
         environment,
         tester_conf,
-        version=tester_conf['cloudify']['default_version'],
     )
 
 
@@ -43,6 +42,15 @@ def install_default_cli(environment, tester_conf):
 def check_existing_healthy_manager(environment, tester_conf):
     """
         Confirm that we have a pre-existing healthy manager.
+    """
+    use_pre_existing_manager(environment, tester_conf)
+    check_manager_is_healthy(environment)
+
+
+@given("I use my existing manager")
+def use_pre_existing_manager(environment, tester_conf):
+    """
+        Set cfy to use a pre-existing manager.
     """
     assert tester_conf['cloudify']['existing_manager_ip'], (
         'Config entry cloudify.existing_manager_ip is not set. '
@@ -55,6 +63,34 @@ def check_existing_healthy_manager(environment, tester_conf):
         password=tester_conf['cloudify']['existing_manager_password'],
     )
 
+
+@when("I use cfy profile for {manager}")
+def use_manager(manager_name, environment):
+    """
+        Set cfy to use a manager that has been deployed by the framework.
+    """
+    assert manager_name in environment.managers, (
+        'Manager {selected} was not created by this test run. '
+        'Available managers are: {available}'.format(
+            selected=manager_name,
+            available=', '.join(environment.managers.keys()),
+        )
+    )
+
+    manager = environment.managers[manager_name]
+
+    environment.cfy.profiles.use(
+        ip=manager['ip'],
+        username=manager['username'],
+        password=manager['password'],
+    )
+
+
+@when("My current manager is healthy")
+def check_manager_is_healthy(environment):
+    """
+        Check the currently selected manager is healthy.
+    """
     status = environment.cfy.status()
     assert status['services'], (
         'There appear to be no services, which is not healthy for a manager.'
@@ -144,6 +180,33 @@ def switch_tenant(tenant_name, password, environment, tester_conf):
         tenant=tenant_name,
         username=tenant_name,
         password=password,
+    )
+
+
+@when(parsers.parse(
+    "I have {name} blueprint and inputs from templates"
+))
+def render_named_blueprint_and_inputs(name, environment, tester_conf):
+    """
+        Render blueprint and inputs templates for a given name.
+        This will use templates/blueprints/{name} for the blueprint
+        and templates/inputs/{name} for the inputs.
+        The files will be rendered as {name}.yaml and {name}_inputs.yaml,
+        respectively.
+    """
+    blueprint_or_inputs(
+        'blueprint',
+        name='{name}.yaml'.format(name=name),
+        template_name='blueprints/{name}'.format(name=name),
+        environment=environment,
+        tester_conf=tester_conf,
+    )
+    blueprint_or_inputs(
+        'inputs',
+        name='{name}_inputs.yaml'.format(name=name),
+        template_name='inputs/{name}'.format(name=name),
+        environment=environment,
+        tester_conf=tester_conf,
     )
 
 
@@ -279,8 +342,8 @@ def create_deployment(deployment_id, blueprint_id, environment):
 
 
 @given("I have installed the plugin locally")
-def install_plugin_in_env(environment):
-    environment.pip.install(get_repo_root())
+def install_plugin_in_env(plugin_location, environment):
+    environment.pip.install(plugin_location)
 
 
 @when(parsers.parse(
