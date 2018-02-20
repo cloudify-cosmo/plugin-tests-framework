@@ -62,6 +62,24 @@ class CfyHelper(CfyHelperBase):
             executor=executor,
         )
 
+        self.pip = PipHelper(workdir=workdir, executer=executor)
+
+    def pip_install(self, version, organisation='cloudify-cosmo'):
+        cfy_packages = [
+            'https://github.com/{organisation}/'
+            'cloudify-cli/archive/{version}.zip'.format(
+                organisation='cloudify_cosmo',
+                version=version,
+            ),
+            '-r',
+            'https://raw.githubusercontent.com/{organisation}/'
+            'cloudify-cli/{version}/dev-requirements.txt'.format(
+                organisation=organisation,
+                version=version,
+            ),
+        ]
+        self.pip.install(packages=cfy_packages)
+
     def deploy_yaml(self, source_dict, file_name):
         yaml_dict = yaml.dump(source_dict, default_flow_style=False)
         self.deploy_file(yaml_dict, file_name)
