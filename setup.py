@@ -17,7 +17,7 @@ from setuptools import setup
 
 setup(
     name='plugin-tests-framework',
-    version='2.0.2',
+    version='2.0.3',
     author='Gigaspaces',
     author_email='cosmo-admin@gigaspaces.com',
     packages=['cloudify_tester', 'cloudify_tester.helpers',

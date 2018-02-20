@@ -9,11 +9,10 @@ import os
 import yaml
 
 
-@when("I have installed cfy")
 @when(parsers.parse(
     "I have installed cfy {version}"
 ))
-def install_cli(environment, tester_conf, version=None):
+def install_cli(environment, tester_conf, version):
     """
         Ensure that the cloudify package is installed, from a source defined
         in the test config.
@@ -21,12 +20,23 @@ def install_cli(environment, tester_conf, version=None):
     # Work with multiple scenarios in the same feature, rather than
     # failing due to already being installed
     if not environment.cli_installed:
-        if version is None:
-            version = tester_conf['cloudify']['default_version']
         environment.cfy.pip_install(version=version)
         environment.cli_installed = True
     # Make sure we use profiles in the test dir only
     os.environ['CFY_WORKDIR'] = environment.workdir
+
+
+@when("I have installed cfy")
+def install_default_cli(environment, tester_conf):
+    """
+        Ensure that the version of cloudify defined in the test config is
+        installed, using the version from cloudify.default_version
+    """
+    install_cli(
+        environment,
+        tester_conf,
+        version=tester_conf['cloudify']['default_version'],
+    )
 
 
 @given("I have a healthy manager")

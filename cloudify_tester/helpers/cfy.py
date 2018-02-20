@@ -70,7 +70,7 @@ class CfyHelper(CfyHelperBase):
         cfy_packages = [
             'https://github.com/{organisation}/'
             'cloudify-cli/archive/{version}.zip'.format(
-                organisation='cloudify_cosmo',
+                organisation=organisation,
                 version=version,
             ),
             '-r',
