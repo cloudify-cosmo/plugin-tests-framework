@@ -1,12 +1,20 @@
-from cloudify_tester.config import NotSet
-from cloudify_tester.commands.utils import load_config
-
 import click
 
 # Note: While config files are in yaml, using yaml.dump adds a newline with an
 # ellipsis. JSON will be compatible, but doesn't add fluff.
 import json
 import sys
+
+from cloudify_tester.utils import NotInRepositoryError
+try:
+    from cloudify_tester.commands.utils import load_config
+    from cloudify_tester.config import NotSet
+except NotInRepositoryError as err:
+    sys.stderr.write(
+        'This must be run in the git repository that is being tested.\n'
+        '{error}\n'.format(error=str(err))
+    )
+    sys.exit(1)
 
 
 @click.group(

@@ -123,7 +123,7 @@ def switch_tenant(tenant_name, password, environment, tester_conf):
                 'password': creds_conf['existing_manager_password'],
             },
         )
-        
+
     environment.cfy._current_user = {
         'tenant': tenant_name,
         'username': tenant_name,

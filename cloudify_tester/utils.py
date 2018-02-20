@@ -4,14 +4,23 @@ import subprocess
 from jinja2 import Template
 
 
+class NotInRepositoryError(Exception):
+    pass
+
+
 def get_repo_root():
     """
         Get the root of the git repo the cloudify_tester commands/tests are
         being run from.
     """
-    return subprocess.check_output([
-        'git', 'rev-parse', '--show-toplevel',
-    ]).strip()
+    try:
+        return subprocess.check_output([
+            'git', 'rev-parse', '--show-toplevel',
+        ]).strip()
+    except subprocess.CalledProcessError as err:
+        raise NotInRepositoryError(
+            'Error trying to find repo root: {msg}'.format(msg=str(err))
+        )
 
 
 def get_config_entry(path, config):

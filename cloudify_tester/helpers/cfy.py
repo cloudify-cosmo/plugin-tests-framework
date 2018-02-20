@@ -1,3 +1,5 @@
+from cloudify_tester.helpers.pip import PipHelper
+
 import json
 import os
 
