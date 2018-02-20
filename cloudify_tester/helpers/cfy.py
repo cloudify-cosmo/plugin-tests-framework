@@ -64,7 +64,7 @@ class CfyHelper(CfyHelperBase):
             executor=executor,
         )
 
-        self.pip = PipHelper(workdir=workdir, executer=executor)
+        self.pip = PipHelper(workdir=workdir, executor=executor)
 
     def pip_install(self, version, organisation='cloudify-cosmo'):
         cfy_packages = [

@@ -17,7 +17,7 @@ from setuptools import setup
 
 setup(
     name='plugin-tests-framework',
-    version='2.0.1',
+    version='2.0.2',
     author='Gigaspaces',
     author_email='cosmo-admin@gigaspaces.com',
     packages=['cloudify_tester', 'cloudify_tester.helpers',
@@ -28,6 +28,9 @@ setup(
         'PyYAML==3.10',
         'Jinja2==2.7.2',
         'click==4.0',
+        'mock==2.0.0',
+        'pytest==3.4.0',
+        'pytest-bdd==2.20.0',
     ],
     entry_points={
         'console_scripts': [
