@@ -79,10 +79,18 @@ def use_manager(manager_name, environment):
 
     manager = environment.managers[manager_name]
 
+    environment.add_cleanup(
+        environment.cfy.profiles.delete,
+        kwargs={
+            'profile_name': manager['ip'],
+        },
+    )
+
     environment.cfy.profiles.use(
         ip=manager['ip'],
         username=manager['username'],
         password=manager['password'],
+        rest_certificate=manager['certificate_path'],
     )
 
 

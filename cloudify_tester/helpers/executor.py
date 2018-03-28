@@ -105,17 +105,11 @@ class Executor(object):
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                 )
-                while process.returncode is None:
-                    self._process_output(
-                        process,
-                        process_stdout,
-                        process_stderr
-                    )
-                    process.poll()
+                # TODO: Make the output streaming
                 self._process_output(
                     process,
                     process_stdout,
-                    process_stderr
+                    process_stderr,
                 )
                 if process.returncode in expected_return_codes:
                     # It worked!
@@ -156,10 +150,11 @@ class Executor(object):
         }
 
     def _process_output(self, process, process_stdout, process_stderr):
-        for line in process.stdout.readlines():
+        stdout, stderr = process.communicate()
+        for line in stdout.splitlines():
             self.logger.info(line.rstrip('\n'))
             process_stdout.append(line)
-        for line in process.stderr.readlines():
+        for line in stderr.splitlines():
             self.logger.error(line.rstrip('\n'))
             process_stderr.append(line)
 

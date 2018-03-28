@@ -68,6 +68,32 @@ def run_command_on_host(command, user_at_host, environment, tester_conf):
         Run specified command on target user@host via SSH.
     """
     ssh_key = tester_conf['ssh']['key_path']
-    environment.executor([
-        'ssh', '-i', ssh_key, user_at_host, command
-    ])
+    ssh_command = [
+        'ssh',
+        '-o', 'StrictHostKeyChecking=no',
+        '-o', 'UserKnownHostsFile=ssh_known_hosts',
+    ]
+    if ssh_key:
+        ssh_command.extend(['-i', ssh_key])
+    ssh_command.extend([user_at_host, command])
+    environment.executor(ssh_command)
+
+
+@when(parsers.cfparse(
+    'I copy {source_path} (to|from) {user_at_host} to {destination_path}'
+))
+def scp_file(source_path, user_at_host, destination_path, environment,
+             tester_conf):
+    """
+       Copy a file via scp.
+    """
+    ssh_key = tester_conf['ssh']['key_path']
+    scp_command = [
+        'scp',
+        '-o', 'StrictHostKeyChecking=no',
+        '-o', 'UserKnownHostsFile=ssh_known_hosts',
+    ]
+    if ssh_key:
+        scp_command.extend(['-i', ssh_key])
+    scp_command.extend([user_at_host + ':' + source_path, destination_path])
+    environment.executor(scp_command)

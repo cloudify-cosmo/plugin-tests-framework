@@ -176,15 +176,24 @@ class _CfySecretsHelper(CfyHelperBase):
 
 
 class _CfyProfilesHelper(CfyHelperBase):
-    def use(self, ip, username, password, tenant='default_tenant',
-            fake_run=False):
+    def use(self, ip, username, password, rest_certificate,
+            tenant='default_tenant', fake_run=False):
         return self._exec(
             [
                 'profiles', 'use',
                 '--manager-username', username,
                 '--manager-password', password,
                 '--manager-tenant', tenant,
+                '--rest-certificate', rest_certificate,
                 ip,
+            ],
+            fake_run=fake_run,
+        )
+
+    def delete(self, profile_name, fake_run=False):
+        return self._exec(
+            [
+                'profiles', 'delete', profile_name,
             ],
             fake_run=fake_run,
         )
@@ -344,7 +353,7 @@ class _CfyExecutionsHelper(CfyHelperBase):
             )
 
     def _local_start(self, workflow_name, blueprint_file,
-                     task_retries=60, task_retry_interval=3,
+                     task_retries=10, task_retry_interval=3,
                      fake_run=False):
         command = [
             'executions', 'start', workflow_name,
@@ -356,9 +365,9 @@ class _CfyExecutionsHelper(CfyHelperBase):
 
 
 class _CfyNodeInstancesHelper(CfyHelperBase):
-    def __call__(self):
-        node_instances = json.loads(self._exec(
-            'node-instances'
-        ))
-
+    def __call__(self, blueprint):
+        node_instances_output = '\n'.join(self._exec(
+            ['node-instances', '-b', blueprint]
+        )['stdout'])
+        node_instances = json.loads(node_instances_output)
         return node_instances
