@@ -1,5 +1,5 @@
 from cloudify_tester.utils import get_config_entry
-from pytest_bdd import given, then, parsers
+from pytest_bdd import given, then, when, parsers
 import pytest
 import json
 import time
@@ -42,3 +42,32 @@ def wait(count):
         Wait for {count} seconds.
     """
     time.sleep(count)
+
+
+@when(parsers.cfparse("I download {url} on {user_at_host} as {filepath}"))
+def download_file_on_host(url, user_at_host, filepath, environment,
+                          tester_conf):
+    """
+        Download file from specified URL to given path on target user@host.
+        This file download will be initiated using SSH.
+    """
+    run_command_on_host(
+        command='curl -o {filepath} {url}'.format(
+            filepath=filepath,
+            url=url,
+        ),
+        user_at_host=user_at_host,
+        environment=environment,
+        tester_conf=tester_conf,
+    )
+
+
+@when(parsers.cfparse('I run SSH command "{command}" on {user_at_host}'))
+def run_command_on_host(command, user_at_host, environment, tester_conf):
+    """
+        Run specified command on target user@host via SSH.
+    """
+    ssh_key = tester_conf['ssh']['key_path']
+    environment.executor([
+        'ssh', '-i', ssh_key, user_at_host, command
+    ])
