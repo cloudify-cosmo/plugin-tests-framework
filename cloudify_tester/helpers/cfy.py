@@ -12,10 +12,16 @@ class CfyHelperBase(object):
         self._executor = executor
 
     def _exec(self, command, install_plugins=False,
-              retries=0, retry_delay=3, fake_run=False):
+              retries=0, retry_delay=3, env_var_overrides=None,
+              fake_run=False):
         prepared_command = ['bin/cfy']
         command = [str(component) for component in command]
         prepared_command.extend(command)
+        env_vars = {
+            'CFY_WORKDIR': '.',
+        }
+        if env_var_overrides:
+            env_vars.update(env_var_overrides)
         if install_plugins:
             prepared_command.append('--install-plugins')
         return self._executor(
@@ -23,6 +29,7 @@ class CfyHelperBase(object):
             retries=retries,
             retry_delay=retry_delay,
             path_prepends=['bin'],
+            env_var_overrides=env_vars,
             fake=fake_run,
         )
 
@@ -30,7 +37,6 @@ class CfyHelperBase(object):
 class CfyHelper(CfyHelperBase):
     def __init__(self, workdir, executor):
         super(CfyHelper, self).__init__(workdir=workdir, executor=executor)
-        self.local = _CfyLocalHelper(workdir=workdir, executor=executor)
         self.blueprints = _CfyBlueprintsHelper(
             workdir=workdir,
             executor=executor
@@ -105,8 +111,11 @@ class CfyHelper(CfyHelperBase):
                   'w') as output_handle:
             output_handle.write(data)
 
-    def init(self, fake_run=False):
-        return self._exec(['init'], fake_run=fake_run)
+    def init(self, blueprint_file, inputs_file=None, fake_run=False):
+        command = ['init', blueprint_file, '-b', blueprint_file]
+        if inputs_file:
+            command.extend(['-i', inputs_file])
+        return self._exec(command, fake_run=fake_run)
 
     def bootstrap(self, blueprint_path, inputs_path, install_plugins=False,
                   fake_run=False):
@@ -251,51 +260,6 @@ class _CfyUsersHelper(CfyHelperBase):
         )
 
 
-class _CfyLocalHelper(CfyHelperBase):
-    def init(self, blueprint_path, inputs_path, install_plugins=False,
-             fake_run=False):
-        return self._exec(
-            [
-                'local', 'init',
-                '--blueprint-path', blueprint_path,
-                '--inputs', inputs_path,
-            ],
-            install_plugins=install_plugins,
-            fake_run=fake_run,
-        )
-
-    def execute_operation(self, operation, node, operation_kwargs=None,
-                          fake_run=False, retries=50, interval=3):
-        params = {'operation': operation, 'node_ids': node}
-        if operation_kwargs:
-            params['operation_kwargs'] = operation_kwargs
-        return self._exec(
-            [
-                'local', 'execute', '--workflow', 'execute_operation',
-                '--parameters', json.dumps(params),
-                '--task-retry-interval', interval,
-                '--task-retries', retries,
-            ],
-            fake_run=fake_run,
-        )
-
-    def execute(self, workflow, fake_run=False, retries=50, interval=3):
-        return self._exec(['local', 'execute', '--workflow', workflow,
-                           '--task-retry-interval', interval,
-                           '--task-retries', retries],
-                          fake_run=fake_run)
-
-    def outputs(self, fake_run=False):
-        result = self._exec(['local', 'outputs'], fake_run=fake_run)
-        result['cfy_outputs'] = json.loads(str(''.join(result['stdout'])))
-        return result
-
-    def instances(self, fake_run=False):
-        result = self._exec(['local', 'instances'], fake_run=fake_run)
-        result['cfy_instances'] = json.loads(str(''.join(result['stdout'])))
-        return result
-
-
 class _CfyBlueprintsHelper(CfyHelperBase):
     def upload(self, blueprint_path, blueprint_id, validate=False,
                fake_run=False):
@@ -366,12 +330,27 @@ class _CfyPluginsHelper(CfyHelperBase):
 
 
 class _CfyExecutionsHelper(CfyHelperBase):
-    def start(self, deployment_id, workflow, timeout=900, fake_run=False):
+    def start(self, *args, **kwargs):
+        if 'local' in kwargs:
+            local = kwargs.pop('local')
+        else:
+            local = False
+
+        if local:
+            return self._local_start(*args, **kwargs)
+        else:
+            raise NotImplementedError(
+                'Only local executions supported currently.'
+            )
+
+    def _local_start(self, workflow_name, blueprint_file,
+                     task_retries=60, task_retry_interval=3,
+                     fake_run=False):
         command = [
-            'executions', 'start',
-            '--deployment-id', deployment_id,
-            '--timeout', timeout,
-            workflow,
+            'executions', 'start', workflow_name,
+            '-b', blueprint_file,
+            '--task-retries', task_retries,
+            '--task-retry-interval', task_retry_interval,
         ]
         return self._exec(command, fake_run=fake_run)
 

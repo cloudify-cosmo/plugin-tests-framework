@@ -1,3 +1,4 @@
+2.3.1: Fix local blueprints/executions for 4.x.
 2.3.0: Support retrieving node instances locally.
 2.2.0: Support running SSH commands.
 2.1.0: Support using and checking status of managers.
