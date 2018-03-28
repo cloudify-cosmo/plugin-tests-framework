@@ -357,24 +357,33 @@ def local_init_blueprint(blueprint, inputs, environment):
         These files should have been created with the 'I have
         {file_type}...' steps.
     """
-    # TODO: This should use get_<x>_location classs from utils
-    environment.cfy.local.init(
-        blueprint_path=blueprint,
-        inputs_path=inputs,
+    environment.cfy.init(
+        blueprint_file=blueprint,
+        inputs_file=inputs,
     )
 
 
-@when("I run the local install workflow")
-def local_install(environment):
+@when(parsers.parse(
+    "I install local blueprint {blueprint}"
+))
+def local_install(blueprint, environment):
     """
-        Run the test environment's cfy local execute -w install.
+        Run a workflow on a locally initialised blueprint.
         This will automatically add an 'uninstall' cleanup to the environment.
     """
     environment.add_cleanup(
-        environment.cfy.local.execute,
-        args=['uninstall'],
+        environment.cfy.executions.start,
+        kwargs={
+            'workflow_name': 'uninstall',
+            'blueprint_file': blueprint,
+            'local': True,
+        },
     )
-    result = environment.cfy.local.execute('install')
+    result = environment.cfy.executions.start(
+        workflow_name='install',
+        blueprint_file=blueprint,
+        local=True,
+    )
     assert result['returncode'] == 0, (
         'Install workflow failed!'
     )

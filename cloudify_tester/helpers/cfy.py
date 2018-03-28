@@ -63,6 +63,10 @@ class CfyHelper(CfyHelperBase):
             workdir=workdir,
             executor=executor,
         )
+        self.node_instances = _CfyNodeInstancesHelper(
+            workdir=workdir,
+            executor=executor,
+        )
 
         self.pip = PipHelper(workdir=workdir, executor=executor)
 
@@ -370,3 +374,12 @@ class _CfyExecutionsHelper(CfyHelperBase):
             workflow,
         ]
         return self._exec(command, fake_run=fake_run)
+
+
+class _CfyNodeInstancesHelper(CfyHelperBase):
+    def __call__(self):
+        node_instances = json.loads(self._exec(
+            'node-instances'
+        ))
+
+        return node_instances
