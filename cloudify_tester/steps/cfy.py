@@ -479,6 +479,9 @@ def local_uninstall(environment):
 
 @then(parsers.parse("I confirm that local output {output} is {value}"))
 def local_output_check(environment, output, value):
+    """
+        Confirm a local output has a specified value.
+    """
     outputs = environment.cfy.local.outputs()['cfy_outputs']
     # Make sure the comparisons are all string based, a different step should
     # be created that forces the parsed type to be of the correct type for
@@ -488,6 +491,9 @@ def local_output_check(environment, output, value):
 
 @when(parsers.parse("I run the {operation} operation on local node {node}"))
 def local_operation(operation, node, environment):
+    """
+        Run a local operation and complain on failure.
+    """
     run_operation(operation, node, environment)
 
 
@@ -496,12 +502,18 @@ def local_operation(operation, node, environment):
     "json args: {kwargs}"
 ))
 def local_operation_with_args(operation, kwargs, node, environment):
+    """
+        Run a local operation with specified kwargs and complain on failure.
+    """
     kwargs = json.loads(kwargs)
     run_operation(operation, node, environment, args=kwargs)
 
 
 @when(parsers.parse("I fail the {operation} operation on local node {node}"))
 def fail_local_operation(operation, node, environment):
+    """
+        Run a local operation with specified kwargs and complain on success.
+    """
     run_operation(operation, node, environment, succeed=False)
 
 
@@ -510,6 +522,9 @@ def fail_local_operation(operation, node, environment):
     "json args: {kwargs}"
 ))
 def fail_local_operation_with_args(operation, kwargs, node, environment):
+    """
+        Run an operation with specified kwargs and complain on success.
+    """
     kwargs = json.loads(kwargs)
     run_operation(operation, node, environment, args=kwargs, succeed=False)
 

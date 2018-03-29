@@ -1,3 +1,4 @@
+2.4.1: Fix missing docstrings.
 2.4.0: Add ability to delete profiles and make components work for basic manager test.
 2.3.1: Fix local blueprints/executions for 4.x.
 2.3.0: Support retrieving node instances locally.
