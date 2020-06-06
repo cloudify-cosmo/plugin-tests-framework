@@ -1,0 +1,7 @@
+namespace: logging
+level:
+  description: What level to log at (debug, info, warn, or error).
+  default: debug
+to_console:
+  description: Whether to log to console as well as to a test_run.log in the test's workdir.
+  default: false

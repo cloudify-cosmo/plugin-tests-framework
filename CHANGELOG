@@ -1,0 +1,42 @@
+2.4.1: Fix missing docstrings.
+2.4.0: Add ability to delete profiles and make components work for basic manager test.
+2.3.1: Fix local blueprints/executions for 4.x.
+2.3.0: Support retrieving node instances locally.
+2.2.0: Support running SSH commands.
+2.1.0: Support using and checking status of managers.
+2.0.3: Make default version cfy installer step work.
+2.0.2: Fix dependencies and cfy installer.
+2.0.1: Fix error when not in repo; fix migrated cfy installer.
+2.0.0: Move cfy installation to cfy helper.
+1.15.0: Make manager functions clean up correctly.
+1.14.6: Make deployment outputs actually grab the outputs.
+1.14.5: Make executor fail correctly with no retries.
+1.14.4: More tenant name arg issues.
+1.14.3: Fix tenant name arg.
+1.14.2: Profiles use requires tenant argument (default tenant apparently is not default).
+1.14.1: Fix status command (lines are already split).
+1.14.0: Add tools for working with deployments on managers.
+1.13.0: Add ability to create secrets.
+1.12.1: Fix cfy commands for use with new CLI (except local commands).
+1.12.0: Add ability to work with tenants.
+1.11.0: Add ability to check for (and use) a pre-existing healthy manager.
+1.10.2: Downgrade click version to be compatible with cfy.
+1.10.1: Fix duplicated function names.
+1.10.0: Add ability to provide kwargs on local operations. Fail if operation execution fails and allow checking failed operation output.
+1.9.0: Add ability to check install workflow output contains a confing entry value, and case sensitivity option.
+1.8.0: Add ability to check local install workflow fails with expected errors.
+1.7.0: Add local instances and local operation execution.
+1.6.3: Handle already existing subdirs when deploying files.
+1.6.2: Python mutable stuff fix.
+1.6.1: Fix multiple logging output with console logging enabled.
+1.6.0: Add ability to wait a given amount of seconds.
+1.5.0: Add ability to check local outputs.
+1.4.0: Add ability to pip install from a path.
+1.3.1: Allow deploying scripts/etc to subdirs.
+1.3.0: Allow scripts to be deployed from templates.
+1.2.1: Fix conf entries in executor.
+1.2.0: Add support for skipping test based on boolean in config.
+1.1.2: Add support for magic.repo_root in templates. (badly versioned)
+1.1.1: Add support for conf entries in executor.
+1.1.0: Add support for retrieving files.
+1.0.0: Initial version.

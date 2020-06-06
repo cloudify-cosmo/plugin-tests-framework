@@ -1,0 +1,4 @@
+namespace: ssh
+key_path:
+  description: What key to use for any SSH commands. null will use system default.
+  default: null

@@ -1,0 +1,16 @@
+namespace: cloudify
+default_version:
+  description: Where to pip install cloudify from. This will be called as pip install <value>
+  default: 4.3
+types_location:
+  description: The location of the types.yaml the blueprints should use.
+  default: http://www.getcloudify.org/spec/cloudify/4.3/types.yaml
+existing_manager_ip:
+  description: The IP of a pre-existing manager. Used for tests that expect to start with an existing manager (e.g. deployed from an image).
+  default: ""
+existing_manager_username:
+  description: The username to use on a pre-existing manager.
+  default: "admin"
+existing_manager_password:
+  description: The password to use on a pre-existing manager.
+  default: "admin"

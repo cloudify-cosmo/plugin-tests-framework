@@ -1,0 +1,9 @@
+resources_prefix:
+  description: The prefix to put on resources specified in blueprints.
+  default: system-tests
+test_groups:
+  description: List of test groups to run. Only those listed in the defaults are considered supported.
+  default: ['code-quality', 'internal', 'external', 'system']
+ignore_quality_failures:
+  description: Set this to true if you wish to continue running tests when there are code quality failures.
+  default: false

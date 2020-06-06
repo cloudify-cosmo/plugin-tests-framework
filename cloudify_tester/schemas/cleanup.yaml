@@ -1,0 +1,13 @@
+namespace: cleanup
+on_success:
+  description: Whether to run test environment cleanups if the tests succeed.
+  default: true
+on_failure:
+  description: Whether to run test environment cleanups if any tests fail.
+  default: false
+remove_workdir_on_success:
+  description: Whether to keep the workdir (which contains log files and inputs) after any cleanups are run on a successful test run.
+  default: true
+remove_workdir_on_failure:
+  description: Whether to keep the workdir (which contains log files and inputs) after any cleanups are run on a test run with failures.
+  default: false
